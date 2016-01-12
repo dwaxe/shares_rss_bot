@@ -62,8 +62,11 @@ def submit_post(title, link, subreddit):
         r.submit(subreddit, title, url=link)
     except praw.errors.AlreadySubmitted:
         pass
-    except (praw.errors.RateLimitExceeded, praw.errors.HTTPException) as e:
+    except praw.errors.HTTPException as e:
         logging.debug(e)
+    except praw.errors.RateLimitExceeded as e:
+        logging.debug(e)
+        quit()
 
 
 r = praw.Reddit(user_agent='shares_rss')
