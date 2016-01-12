@@ -66,7 +66,7 @@ def submit_post(title, link, subreddit):
         logging.debug(e)
     except praw.errors.RateLimitExceeded as e:
         logging.debug(e)
-        quit()
+        raise SystemExit
 
 
 r = praw.Reddit(user_agent='shares_rss')
