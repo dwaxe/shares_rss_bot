@@ -1,16 +1,13 @@
-import feedparser
+"""This bot shares RSS feeds to subreddits
+"""
+
 import logging
 import os
-import praw
 import threading
 import time
 
-__author__ = "Darwin Wu"
-__license__ = "BSD"
-
-"""
-This bot shares RSS feeds to subreddits
-"""
+import feedparser
+import praw
 
 try:
     REDDIT_USER = os.environ['REDDIT_USER']
@@ -50,6 +47,7 @@ def update_feed(feed):
         logging.debug(e)
         return
     for entry in d.entries[:FEED_DEPTH]:
+        logging.info('Updating {}'.format(feed))
         title = entry.title
         link = entry.link
         subreddit = feeds_dict[feed]
@@ -59,6 +57,7 @@ def update_feed(feed):
 def submit_post(title, link, subreddit):
     """Submit a single post to Reddit, ignoring AlreadySubmitted errors."""
     try:
+        logging.info('Submitting {} to {}'.format(link, subreddit))
         r.submit(subreddit, title, url=link)
     except praw.errors.AlreadySubmitted:
         pass
@@ -66,7 +65,7 @@ def submit_post(title, link, subreddit):
         logging.debug(e)
 
 
-r = praw.Reddit(user_agent='shares_rss_bot')
+r = praw.Reddit(user_agent='shares_rss')
 r.login(REDDIT_USER, REDDIT_PASS, disable_warning=True)
 
 update_feeds()
