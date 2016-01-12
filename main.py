@@ -17,6 +17,7 @@ except:
     REDDIT_USER = 'whoami'
     REDDIT_PASS = 'mysecret'
 
+# Great big list of feed: subreddit data
 feeds_dict = {
     'http://fivethirtyeight.com/economics/feed/': 'economics',
     'http://www.voxeu.org/feed/recent/rss.xml': 'economics',
