@@ -88,11 +88,11 @@ def update_feed(feed):
     d = feedparser.parse(feed)
     try:
         link = d.entries[0].link
+        logging.info('Updating {}'.format(feed))
     except (AttributeError, IndexError) as e:
         logging.warning(e)
         return
     for entry in d.entries[:FEED_DEPTH]:
-        logging.info('Updating {}'.format(feed))
         title = entry.title
         link = entry.link
         subreddits = feeds_dict[feed].split()
