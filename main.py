@@ -103,8 +103,8 @@ def update_feed(feed):
 def submit_post(title, link, subreddit):
     """Submit a single post to Reddit, ignoring AlreadySubmitted errors."""
     try:
-        logging.info('Submitting {} to {}'.format(link, subreddit))
         r.submit(subreddit, title, url=link)
+        logging.info('Submitted {} to {}'.format(link, subreddit))
     except praw.errors.AlreadySubmitted:
         pass
     except praw.errors.HTTPException as e:
