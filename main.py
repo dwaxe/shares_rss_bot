@@ -89,7 +89,7 @@ def update_feed(feed):
     try:
         link = d.entries[0].link
     except (AttributeError, IndexError) as e:
-        logging.debug(e)
+        logging.warning(e)
         return
     for entry in d.entries[:FEED_DEPTH]:
         logging.info('Updating {}'.format(feed))
@@ -116,6 +116,8 @@ def submit_post(title, link, subreddit):
 
 r = praw.Reddit(user_agent='shares_rss')
 r.login(REDDIT_USER, REDDIT_PASS, disable_warning=True)
+
+logging.basicConfig(filename='bot.log', level=logging.INFO)
 
 load_feeds()
 process_messages()
