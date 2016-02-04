@@ -67,8 +67,8 @@ def read_message(message):
             message.reply(body)
         else:
             message.reply("You are not a mod of {}".format(subreddit))
-    except:
-        pass
+    except praw.errors.InvalidSubreddit:
+        message.reply("{} does not exist".format(subreddit))
 
 
 def update_feeds():
