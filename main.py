@@ -56,17 +56,15 @@ def process_messages():
 def read_message(message):
     """Process an individual message object for a new feed."""
     author = message.author
-    words = message.body.split()
-    for i in xrange(len(words)):
-        if words[i].lower() == "subreddit:":
-            subreddit = words[i + 1]
-        if words[i].lower() == "feed:":
-            feed = words[i + 1]
+    subreddit = message.subject
+    feed = message.body
     try:
         mods = r.get_moderators(subreddit)
         subreddit = r.get_subreddit(subreddit).url[3:-1]
         if author in mods:
             add_feed(feed, subreddit)
+            body = "Successfully added {} to {}".format(feed, subreddit)
+            message.reply(body)
         else:
             message.reply("You are not a mod of {}".format(subreddit))
     except:
