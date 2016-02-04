@@ -40,9 +40,13 @@ def save_feeds():
 
 def add_feed(feed, subreddit):
     """Add feed subreddit pair to dictionary"""
-    subreddits = feeds_dict[feed].split()
-    if subreddit not in subreddits:
-        feeds_dict[feed] = feeds_dict[feed] + " " + subreddit
+    if feed in feeds_dict:
+        subreddits = feeds_dict[feed].split()
+        if subreddit not in subreddits:
+            feeds_dict[feed] = feeds_dict[feed] + " " + subreddit
+    else:
+        feeds_dict[feed] = subreddit
+    logging.info('Now feeding {} to {}'.format(feed, subreddit))
 
 
 def process_messages():
