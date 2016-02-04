@@ -1,6 +1,7 @@
 """This bot shares RSS feeds to subreddits
 """
 
+import json
 import logging
 import os
 import threading
@@ -17,16 +18,59 @@ except:
     REDDIT_USER = 'whoami'
     REDDIT_PASS = 'mysecret'
 
-# Great big list of feed: subreddit data
-feeds_dict = {
-    'http://fivethirtyeight.com/economics/feed/': 'economics',
-    'http://www.voxeu.org/feed/recent/rss.xml': 'economics',
-    'http://feeds.reuters.com/news/economy': 'economics',
-    'http://feeds.bbci.co.uk/news/business/economy/rss.xml': 'economics'
-}
+# Great big list of feeds to subreddits
+feeds_dict = {}
 
 # Will go this many entries into the feed checking for new stuff
 FEED_DEPTH = 2
+
+
+def load_feeds():
+    """Load feeds from feeds.json"""
+    with open('feeds.json', 'r') as f:
+        global feeds_dict
+        feeds_dict = json.load(f)
+
+
+def save_feeds():
+    """Save feeds to feeds.json"""
+    with open('feeds.json', 'w') as f:
+        json.dump(feeds_dict, f)
+
+
+def add_feed(feed, subreddit):
+    """Add feed subreddit pair to dictionary"""
+    subreddits = feeds_dict[feed].split()
+    if subreddit not in subreddits:
+        feeds_dict[feed] = feeds_dict[feed] + " " + subreddit
+
+
+def process_messages():
+    """Process messages searching for new feeds."""
+    messages = r.get_unread()
+    for m in messages:
+        m.mark_as_read()
+        read_message(m)
+
+
+def read_message(message):
+    """Process an individual message object for a new feed."""
+    author = message.author
+    words = message.body.split()
+    for i in xrange(len(words)):
+        if words[i].lower() == "subreddit:":
+            subreddit = words[i + 1]
+        if words[i].lower() == "feed:":
+            feed = words[i + 1]
+    try:
+        mods = r.get_moderators(subreddit)
+        subreddit = r.get_subreddit(subreddit).url[3:-1]
+        if author in mods:
+            add_feed(feed, subreddit)
+        else:
+            message.reply("You are not a mod of {}".format(subreddit))
+    except:
+        pass
 
 
 def update_feeds():
@@ -51,8 +95,9 @@ def update_feed(feed):
         logging.info('Updating {}'.format(feed))
         title = entry.title
         link = entry.link
-        subreddit = feeds_dict[feed]
-        submit_post(title, link, subreddit)
+        subreddits = feeds_dict[feed].split()
+        for subreddit in subreddits:
+            submit_post(title, link, subreddit)
 
 
 def submit_post(title, link, subreddit):
@@ -72,4 +117,7 @@ def submit_post(title, link, subreddit):
 r = praw.Reddit(user_agent='shares_rss')
 r.login(REDDIT_USER, REDDIT_PASS, disable_warning=True)
 
+load_feeds()
+process_messages()
 update_feeds()
+save_feeds()
