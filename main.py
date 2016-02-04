@@ -114,6 +114,8 @@ def submit_post(title, link, subreddit):
     except praw.errors.RateLimitExceeded as e:
         logging.debug(e)
         raise SystemExit
+    except praw.errors.APIException as e:
+        logging.warning(e)
 
 
 r = praw.Reddit(user_agent='shares_rss')
