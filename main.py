@@ -93,7 +93,7 @@ def update_feed(feed):
         link = d.entries[0].link
         logging.debug('Updating {}'.format(feed))
     except (AttributeError, IndexError) as e:
-        logging.warning(e)
+        logging.warning(str(e) + ': ' + feed)
         return
     for entry in d.entries[:FEED_DEPTH]:
         title = entry.title
