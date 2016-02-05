@@ -78,6 +78,7 @@ def read_message(message):
 def update_feeds():
     """Update all feeds in feeds_dict."""
     thread_limit = 100
+    logging.info('Updating feeds')
     for feed in feeds_dict:
         if len(threading.enumerate()) >= thread_limit:
             time.sleep(10)
@@ -90,7 +91,7 @@ def update_feed(feed):
     d = feedparser.parse(feed)
     try:
         link = d.entries[0].link
-        logging.info('Updating {}'.format(feed))
+        logging.debug('Updating {}'.format(feed))
     except (AttributeError, IndexError) as e:
         logging.warning(e)
         return
