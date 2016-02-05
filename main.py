@@ -27,14 +27,14 @@ FEED_DEPTH = 2
 
 def load_feeds():
     """Load feeds from feeds.json"""
-    with open('feeds.json', 'r') as f:
+    with open(os.path.join(__location__, 'feeds.json'), 'r') as f:
         global feeds_dict
         feeds_dict = json.load(f)
 
 
 def save_feeds():
     """Save feeds to feeds.json"""
-    with open('feeds.json', 'w') as f:
+    with open(os.path.join(__location__, 'feeds.json'), 'w') as f:
         json.dump(feeds_dict, f)
 
 
@@ -121,7 +121,10 @@ def submit_post(title, link, subreddit):
 r = praw.Reddit(user_agent='shares_rss')
 r.login(REDDIT_USER, REDDIT_PASS, disable_warning=True)
 
-logging.basicConfig(filename='bot.log', level=logging.INFO,
+__location__ = os.path.realpath(
+    os.path.join(os.getcwd(), os.path.dirname(__file__)))
+filename = os.path.join(__location__, 'bot.log')
+logging.basicConfig(filename=filename, level=logging.INFO,
                     format='%(asctime)s %(message)s')
 
 load_feeds()
