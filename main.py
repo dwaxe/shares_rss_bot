@@ -78,7 +78,7 @@ def read_message(message):
 def update_feeds():
     """Update all feeds in feeds_dict."""
     thread_limit = 100
-    logging.info('Updating feeds')
+    logging.info('Updating {} feeds'.format(len(feeds_dict)))
     for feed in feeds_dict:
         if len(threading.enumerate()) >= thread_limit:
             time.sleep(10)
