@@ -121,7 +121,8 @@ def submit_post(title, link, subreddit):
 r = praw.Reddit(user_agent='shares_rss')
 r.login(REDDIT_USER, REDDIT_PASS, disable_warning=True)
 
-logging.basicConfig(filename='bot.log', level=logging.INFO)
+logging.basicConfig(filename='bot.log', level=logging.INFO,
+                    format='%(asctime)s %(message)s')
 
 load_feeds()
 process_messages()
