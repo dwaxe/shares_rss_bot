@@ -80,7 +80,7 @@ def read_message(message):
     subreddit = message.subject
     feed = message.body
     add = True
-    if 'delete' = feed[:6]:
+    if 'delete' == feed[:6]:
         feed = feed[7:]
         add = False
     try:
