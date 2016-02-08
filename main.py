@@ -46,7 +46,24 @@ def add_feed(feed, subreddit):
             feeds_dict[feed] = feeds_dict[feed] + " " + subreddit
     else:
         feeds_dict[feed] = subreddit
+        return 'Already feeding {} to {}.'.format(feed, subreddit)
     logging.info('Now feeding {} to {}'.format(feed, subreddit))
+    return 'Successfully added {} to {}.'.format(feed, subreddit)
+
+
+def remove_feed(feed, subreddit):
+    """Remove feed subreddit pair from dictionary"""
+    if feed in feeds_dict:
+        subreddits = feeds_dict[feed].split()
+        if subreddit in subreddits:
+            subreddits.remove(subreddit)
+            feeds_dict[feed] = ' '.join(subreddits)
+            logging.info('Removed {} from {}'.format(feed, subreddit))
+            return 'Successfully removed {} from {}.'.format(feed, subreddit)
+        else:
+            return 'Are you sure the subreddit is capitalized correctly?'
+    else:
+        return 'Are you sure the feed is spelled exactly?'
 
 
 def process_messages():
@@ -62,23 +79,29 @@ def read_message(message):
     author = message.author
     subreddit = message.subject
     feed = message.body
+    add = True
+    if 'delete' = feed[:6]:
+        feed = feed[7:]
+        add = False
     try:
         mods = r.get_moderators(subreddit)
         subreddit = r.get_subreddit(subreddit).url[3:-1]
         if author in mods:
-            add_feed(feed, subreddit)
-            body = "Successfully added {} to {}".format(feed, subreddit)
-            message.reply(body)
+            if add:
+                response = add_feed(feed, subreddit)
+            else:
+                response = remove_feed(feed, subreddit)
+            message.reply(response)
         else:
-            message.reply("You are not a mod of {}".format(subreddit))
+            message.reply("You are not a mod of /r/{}.".format(subreddit))
     except praw.errors.InvalidSubreddit:
-        message.reply("{} does not exist".format(subreddit))
+        message.reply("/r/{} does not exist.".format(subreddit))
 
 
 def update_feeds():
     """Update all feeds in feeds_dict."""
     thread_limit = 100
-    logging.info('Updating {} feeds'.format(len(feeds_dict)))
+    logging.debug('Updating {} feeds'.format(len(feeds_dict)))
     for feed in feeds_dict:
         if len(threading.enumerate()) >= thread_limit:
             time.sleep(10)
@@ -132,3 +155,4 @@ load_feeds()
 process_messages()
 update_feeds()
 save_feeds()
+
