@@ -44,11 +44,14 @@ def add_feed(feed, subreddit):
         subreddits = feeds_dict[feed].split()
         if subreddit not in subreddits:
             feeds_dict[feed] = feeds_dict[feed] + " " + subreddit
+        else:
+            return 'Already feeding {} to /r/{}.'.format(feed, subreddit)
     else:
         feeds_dict[feed] = subreddit
-        return 'Already feeding {} to {}.'.format(feed, subreddit)
     logging.info('Now feeding {} to {}'.format(feed, subreddit))
-    return 'Successfully added {} to {}.'.format(feed, subreddit)
+    title = 'New feed for r/{}'.format(subreddit)
+    submit_post(title, feed, 'shares_rss_bot')
+    return 'Successfully added {} to /r/{}.'.format(feed, subreddit)
 
 
 def remove_feed(feed, subreddit):
@@ -59,7 +62,9 @@ def remove_feed(feed, subreddit):
             subreddits.remove(subreddit)
             feeds_dict[feed] = ' '.join(subreddits)
             logging.info('Removed {} from {}'.format(feed, subreddit))
-            return 'Successfully removed {} from {}.'.format(feed, subreddit)
+            title = 'Removed feed from r/{}'.format(subreddit)
+            submit_post(title, feed, 'shares_rss_bot')
+            return 'Successfully removed {} from /r/{}.'.format(feed, subreddit)
         else:
             return 'Are you sure the subreddit is capitalized correctly?'
     else:
