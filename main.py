@@ -9,6 +9,7 @@ import time
 
 import feedparser
 import praw
+import requests
 
 try:
     REDDIT_USER = os.environ['REDDIT_USER']
@@ -147,6 +148,8 @@ def submit_post(title, link, subreddit):
         logging.debug(e)
         raise SystemExit
     except praw.errors.APIException as e:
+        logging.warning(e)
+    except requests.exceptions.Timeout as e:
         logging.warning(e)
 
 
