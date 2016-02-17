@@ -76,7 +76,10 @@ def process_messages():
     messages = r.get_unread()
     for m in messages:
         m.mark_as_read()
-        read_message(m)
+        try:
+            read_message(m)
+        except praw.errors.NotFound as e:
+            logging.debug(e)
 
 
 def read_message(message):
@@ -147,8 +150,12 @@ def submit_post(title, link, subreddit):
         logging.warning(e)
 
 
-r = praw.Reddit(user_agent='shares_rss')
-r.login(REDDIT_USER, REDDIT_PASS, disable_warning=True)
+try:
+    r = praw.Reddit(user_agent='shares_rss')
+    r.login(REDDIT_USER, REDDIT_PASS, disable_warning=True)
+except praw.errors.HTTPException as e:
+    logging.debug(e)
+    raise SystemExit
 
 __location__ = os.path.realpath(
     os.path.join(os.getcwd(), os.path.dirname(__file__)))
@@ -160,4 +167,3 @@ load_feeds()
 process_messages()
 update_feeds()
 save_feeds()
-
