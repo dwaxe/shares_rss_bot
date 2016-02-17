@@ -168,5 +168,5 @@ logging.basicConfig(filename=filename, level=logging.INFO,
 
 load_feeds()
 process_messages()
-update_feeds()
 save_feeds()
+update_feeds()
