@@ -76,8 +76,8 @@ def process_messages():
     """Process messages searching for new feeds."""
     messages = r.get_unread()
     for m in messages:
-        m.mark_as_read()
         try:
+            m.mark_as_read()
             read_message(m)
         except praw.errors.NotFound as e:
             logging.debug(e)
