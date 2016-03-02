@@ -25,6 +25,9 @@ feeds_dict = {}
 # Will go this many entries into the feed checking for new stuff
 FEED_DEPTH = 2
 
+# Repress requests logging
+logging.getLogger("requests").setLevel(logging.WARNING)
+
 
 def load_feeds():
     """Load feeds from feeds.json"""
@@ -36,7 +39,7 @@ def load_feeds():
 def save_feeds():
     """Save feeds to feeds.json"""
     with open(os.path.join(__location__, 'feeds.json'), 'w') as f:
-        json.dump(feeds_dict, f)
+        json.dump(feeds_dict, f, indent=4)
 
 
 def add_feed(feed, subreddit):
@@ -162,8 +165,8 @@ except praw.errors.HTTPException as e:
 
 __location__ = os.path.realpath(
     os.path.join(os.getcwd(), os.path.dirname(__file__)))
-filename = os.path.join(__location__, 'bot.log')
-logging.basicConfig(filename=filename, level=logging.INFO,
+logfile = os.path.join(__location__, 'bot.log')
+logging.basicConfig(filename=logfile, level=logging.INFO,
                     format='%(asctime)s %(message)s')
 
 load_feeds()
