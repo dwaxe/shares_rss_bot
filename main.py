@@ -1,6 +1,7 @@
 """This bot shares RSS feeds to subreddits
 """
 
+import dataset
 import json
 import logging
 import os
@@ -25,9 +26,17 @@ feeds_dict = {}
 # Will go this many entries into the feed checking for new stuff
 FEED_DEPTH = 2
 
-# Repress requests logging
+# Set up logging
 logging.getLogger("requests").setLevel(logging.WARNING)
+__location__ = os.path.realpath(
+    os.path.join(os.getcwd(), os.path.dirname(__file__)))
+logfile = os.path.join(__location__, 'bot.log')
+logging.basicConfig(filename=logfile, level=logging.INFO,
+                    format='%(asctime)s %(message)s')
 
+# Set up database
+db = dataset.connect("sqlite:///sharedb.db")
+posts = db['posts']
 
 def load_feeds():
     """Load feeds from feeds.json"""
@@ -135,24 +144,26 @@ def update_feed(feed):
         link = entry.link
         subreddits = feeds_dict[feed].split()
         for subreddit in subreddits:
-            submit_post(title, link, subreddit)
+            if posts.find_one(link=link, subreddit=subreddit) is None:
+                submit_post(title, link, subreddit)
 
 
 def submit_post(title, link, subreddit):
-    """Submit a single post to Reddit, ignoring AlreadySubmitted errors."""
+    """Submit a single post to Reddit and record act in database on success"""
     try:
         r.submit(subreddit, title, url=link)
         logging.info('Submitted {} to {}'.format(link, subreddit))
+        posts.insert(dict(link=link, subreddit=subreddit))
     except praw.errors.AlreadySubmitted:
-        pass
+        posts.insert(dict(link=link, subreddit=subreddit))
     except praw.errors.HTTPException as e:
         logging.debug(e)
     except praw.errors.RateLimitExceeded as e:
         logging.debug(e)
         raise SystemExit
-    except praw.errors.APIException as e:
-        logging.warning(e)
-    except requests.exceptions.Timeout as e:
+    except praw.errors.PRAWException as e:
+        logging.warning(str(e) + ': ' + link)
+    except requests.exceptions.RequestException as e:
         logging.warning(e)
 
 
@@ -163,11 +174,6 @@ except praw.errors.HTTPException as e:
     logging.debug(e)
     raise SystemExit
 
-__location__ = os.path.realpath(
-    os.path.join(os.getcwd(), os.path.dirname(__file__)))
-logfile = os.path.join(__location__, 'bot.log')
-logging.basicConfig(filename=logfile, level=logging.INFO,
-                    format='%(asctime)s %(message)s')
 
 load_feeds()
 process_messages()
